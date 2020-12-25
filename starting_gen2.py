@@ -32,7 +32,7 @@ class PeopleGen:
         founding_f.set_fname(rd.choice(nms.male_anglo_names))
         pers.people_list.append(founding_f)
         pers.add_f_tree_node(founding_f)
-        print(founding_f.get_f_graph)
+        print(founding_f.get_f_graph.nodes)
 
 
 
