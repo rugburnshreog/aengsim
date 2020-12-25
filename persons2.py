@@ -5,8 +5,10 @@ y_pos = 1
 
 class Persons:
     unique_id_num = 0
+    unique_f_num = 0
     people_list = []
     f_trees = nx.DiGraph()
+    family_trees = {}
 
     def __init__(self, unique_id):
         self.unique_id = unique_id
@@ -22,6 +24,7 @@ class Persons:
         self.mother = None
         self.children = []
         self.siblings = []
+        self.f_graph = None
 
 
         Persons.unique_id_num += 1
@@ -152,14 +155,34 @@ class Persons:
     def set_mother(self, mother):
         self.mother = mother
 
+    @property
+    def get_f_graph(self):
+        return self.f_graph
+
+    def set_f_graph(self, graph):
+        self.f_graph = graph
+
+
     def add_f_tree_node(self):
+        graph = self.f_graph
+        graph.add_node(self.unique_id, attr_dict=
+                                    {'Gender': self.gender,
+                                     'Age': self.age,
+                                     'Culture': self.culture,
+                                     'fname': self.fname,
+                                     'Marriage': self.married,
+                                     'Level': 10
+                                     })
         Persons.f_trees.add_node(self.unique_id, attr_dict=
                                     {'Gender': self.gender,
                                      'Age': self.age,
                                      'Culture': self.culture,
                                      'fname': self.fname,
-                                     'Marriage': self.married
+                                     'Marriage': self.married,
+                                     'Level': 10
                                      })
+        print(Persons.f_trees.nodes)
+        print(self.f_graph.nodes)
 
     def set_node_position(self):
         global x_pos
@@ -167,7 +190,7 @@ class Persons:
         new_y_value = y_pos
         new_x_value = x_pos + 2
         x_pos += 2
-        nx.set_node_attributes(Persons.f_trees, {self.get_unique_id:{'pos': (new_x_value, new_y_value)}})
+        nx.set_node_attributes(self.f_graph, {self.get_unique_id:{'pos': (new_x_value, new_y_value)}})
 
 
 
@@ -182,6 +205,3 @@ class AngloSaxon(Persons):
     def __init__(self, unique_id):
         super().__init__(unique_id)
         self.culture = AngloSaxon.culture
-
-
-
