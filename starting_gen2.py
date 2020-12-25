@@ -32,7 +32,7 @@ class PeopleGen:
         founding_f.set_fname(rd.choice(nms.male_anglo_names))
         pers.people_list.append(founding_f)
         pers.add_f_tree_node(founding_f)
-        print(founding_f.get_f_graph.nodes)
+        print(founding_f.get_f_graph)
 
 
 
@@ -40,11 +40,5 @@ class PeopleGen:
 
 ppl = PeopleGen()
 ppl.founder_gen()
-for people in pers.people_list:
-    print(people)
-    a = nx.DiGraph()
-    people.set_f_graph(a)
-    pers.add_f_tree_node(people)
-    pers.f_trees.add_node(people)
 # print(pers.f_trees.nodes)
 # nx.draw_networkx(pers.f_trees)

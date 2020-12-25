@@ -181,8 +181,6 @@ class Persons:
                                      'Marriage': self.married,
                                      'Level': 10
                                      })
-        print(Persons.f_trees.nodes)
-        print(self.f_graph.nodes)
 
     def set_node_position(self):
         global x_pos
@@ -205,3 +203,6 @@ class AngloSaxon(Persons):
     def __init__(self, unique_id):
         super().__init__(unique_id)
         self.culture = AngloSaxon.culture
+
+
+
