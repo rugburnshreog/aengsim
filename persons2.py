@@ -4,11 +4,10 @@ y_pos = 1
 
 
 class Persons:
-    unique_id_num = 0
-    unique_f_num = 0
+    unique_id_num = 1
     people_list = []
-    f_trees = nx.DiGraph()
-    family_trees = {}
+    alive_people = []
+    deceased_people = []
 
     def __init__(self, unique_id):
         self.unique_id = unique_id
@@ -24,7 +23,6 @@ class Persons:
         self.mother = None
         self.children = []
         self.siblings = []
-        self.f_graph = None
 
 
         Persons.unique_id_num += 1
@@ -58,6 +56,8 @@ class Persons:
             status.append(self.siblings)
         if self.children:
             status.append(self.show_children)
+        if self.generation:
+            status.append(self.generation)
         return status
 
     @property
@@ -155,41 +155,49 @@ class Persons:
     def set_mother(self, mother):
         self.mother = mother
 
-    @property
-    def get_f_graph(self):
-        return self.f_graph
-
-    def set_f_graph(self, graph):
-        self.f_graph = graph
-
-
-    def add_f_tree_node(self):
-        graph = self.f_graph
-        graph.add_node(self.unique_id, attr_dict=
-                                    {'Gender': self.gender,
-                                     'Age': self.age,
-                                     'Culture': self.culture,
-                                     'fname': self.fname,
-                                     'Marriage': self.married,
-                                     'Level': 10
-                                     })
-        Persons.f_trees.add_node(self.unique_id, attr_dict=
-                                    {'Gender': self.gender,
-                                     'Age': self.age,
-                                     'Culture': self.culture,
-                                     'fname': self.fname,
-                                     'Marriage': self.married,
-                                     'Level': 10
-                                     })
-
-    def set_node_position(self):
-        global x_pos
-        global y_pos
-        new_y_value = y_pos
-        new_x_value = x_pos + 2
-        x_pos += 2
-        nx.set_node_attributes(self.f_graph, {self.get_unique_id:{'pos': (new_x_value, new_y_value)}})
-
+    def get_family(self, passed_people=None, relations=None):
+        if passed_people is None:
+            passed_people = []
+        if relations is None:
+            relations = []
+        if self not in passed_people:
+            passed_people.append(self)
+        relations_dict = {}
+        if self.father:
+            father = self.father
+            father_id = father.get_unique_id
+        else:
+            father_id = 0
+        if self.mother:
+            mother = self.mother
+            mother_id = mother.get_unique_id
+        else:
+            mother_id = 0
+        if self.gender == 'Male':
+            gender = 1
+        else:
+            gender = 2
+        relations_dict['id'] = self.unique_id
+        relations_dict['father_id'] = father_id
+        relations_dict['mother_id'] = mother_id
+        relations_dict['gender'] = gender
+        if relations_dict['id'] not in relations:
+            relations.append(relations_dict)
+        if self.father:
+            if self.father not in passed_people:
+                self.father.get_family(passed_people=passed_people, relations=relations)
+        if self.mother:
+            if self.mother not in passed_people:
+                self.mother.get_family(passed_people=passed_people, relations=relations)
+        if self.siblings:
+            for sibling in self.siblings:
+                if sibling not in passed_people:
+                    sibling.get_family(passed_people=passed_people, relations=relations)
+        if self.children:
+            for child in self.children:
+                if child not in passed_people:
+                    child.get_family(passed_people=passed_people, relations=relations)
+        return relations
 
 
 
