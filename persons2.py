@@ -1,7 +1,30 @@
 import networkx as nx
+import math
 x_pos = 0
 y_pos = 1
 
+def pair(k1, k2, safe=True):
+    """
+    Cantor pairing function
+    http://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+    """
+    z = int(0.5 * (k1 + k2) * (k1 + k2 + 1) + k2)
+    if safe and (k1, k2) != depair(z):
+        raise ValueError("{} and {} cannot be paired".format(k1, k2))
+    return z
+
+
+def depair(z):
+    """
+    Inverse of Cantor pairing function
+    http://en.wikipedia.org/wiki/Pairing_function#Inverting_the_Cantor_pairing_function
+    """
+    w = math.floor((math.sqrt(8 * z + 1) - 1)/2)
+    t = (w**2 + w) / 2
+    y = int(z - t)
+    x = int(w - y)
+    # assert z != pair(x, y, safe=False):
+    return x, y
 
 class Persons:
     unique_id_num = 1
@@ -180,7 +203,10 @@ class Persons:
         relations_dict['id'] = self.unique_id
         relations_dict['father_id'] = father_id
         relations_dict['mother_id'] = mother_id
+        relations_dict['parent_id'] = pair(father_id, mother_id)
         relations_dict['gender'] = gender
+        relations_dict['children_id'] = 0
+        relations_dict['pobject'] = self
         if relations_dict['id'] not in relations:
             relations.append(relations_dict)
         if self.father:
@@ -198,6 +224,41 @@ class Persons:
                 if child not in passed_people:
                     child.get_family(passed_people=passed_people, relations=relations)
         return relations
+
+    def retrieve_pc(self, relations):
+        depaired_parents = []
+        invis_node_pairs = []
+        for parents in relations:
+            if parents['parent_id'] > 0:
+                parents_map = []
+                tupled_parents = depair(parents['parent_id'])
+                for tup_par in tupled_parents:
+                    parents_map.append(tup_par)
+                parents_map.append(parents['parent_id'])
+                depaired_parents.append(parents_map)
+        for parents in depaired_parents:
+            father = parents[0]
+            mother = parents[1]
+            parent_id = parents[2]
+            invis_f_node = pair(father, parent_id)
+            invis_m_node = pair(mother, parent_id)
+            invis_node_pairs.append((invis_f_node, parent_id))
+            invis_node_pairs.append((invis_m_node, parent_id))
+            for people in relations:
+                if father == people['id']:
+                    people['children_id'] = parent_id
+                    people['invis_f_node'] = invis_f_node
+                elif mother == people['id']:
+                    people['children_id'] = parent_id
+                    people['invis_m_node'] = invis_m_node
+                else:
+                    continue
+        return (depaired_parents, invis_node_pairs)
+
+    def retrieve_child_pnodes(self, relations):
+        pass
+
+
 
 
 
